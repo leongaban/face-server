@@ -1,4 +1,5 @@
 import express from 'express'
+import bcrypt from 'bcrypt'
 
 const app = express()
 const port = 3001
@@ -25,6 +26,13 @@ const database = {
       joined: new Date(),
     },
   ],
+  login: [
+    {
+      id: '987',
+      hash: '',
+      email: 'jenny@onlyfans.com',
+    },
+  ],
 }
 
 app.get('/', (req, res) => {
@@ -39,7 +47,17 @@ app.get('/', (req, res) => {
 })
 
 app.post('/signin', (req, res) => {
-  console.log(database)
+  // Load hash from your password DB.
+  bcrypt
+    .compare(
+      'apples',
+      '$2b$05$/KtRBUW6RkuCWRTBRFR9WeYyarQbz3wu7Ku5kODyhyAUUCH6pRWr.'
+    )
+    .then(function (result) {
+      console.log(result)
+      result == true
+    })
+
   if (
     req.body.email === database.users[0].email &&
     req.body.password === database.users[0].password
@@ -52,6 +70,13 @@ app.post('/signin', (req, res) => {
 
 app.post('/register', (req, res) => {
   const { email, password, name } = req.body
+  const saltRounds = Math.floor(Math.random() * (10 - 5 + 1)) + 5 // random number between 5 & 10
+
+  bcrypt.hash(password, saltRounds).then(function (hash) {
+    // Store hash in your password DB.
+    console.log(hash)
+  })
+
   database.users.push({
     id: '125',
     email,
@@ -106,6 +131,15 @@ app.put('/image', (req, res) => {
     res.status(400).json(not_found)
   }
 })
+
+// bcrypt.hash(myPlaintextPassword, saltRounds).then(function (hash) {
+//   // Store hash in your password DB.
+// })
+
+// // Load hash from your password DB.
+// bcrypt.compare(myPlaintextPassword, hash).then(function (result) {
+//   // result == true
+// })
 
 /*
   /                --> res = server running
