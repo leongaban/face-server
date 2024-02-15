@@ -51,7 +51,6 @@ app.post('/signin', (req, res) => {
 })
 
 app.post('/register', (req, res) => {
-  console.log('req.body', req.body)
   const { email, password, name } = req.body
   database.users.push({
     id: '125',
@@ -61,8 +60,11 @@ app.post('/register', (req, res) => {
     entries: 0,
     joined: new Date(),
   })
-  res.json(database.users[database.users.length - 1])
-  // res.status(200).json(database.users[database.users.length - 1])
+
+  const newUser = database.users[database.users.length - 1]
+  console.log('Registered new user:')
+  console.log(newUser)
+  res.status(200).json(newUser)
 })
 
 app.get('/profile/:id', (req, res) => {
@@ -74,16 +76,36 @@ app.get('/profile/:id', (req, res) => {
   if (user) {
     found = true
     res.json(user)
-  } else {
+  }
+
+  if (!found) {
     res.status(400).json(not_found)
   }
+
   const log = found ? user : not_found
   console.log('Fetching user:', log)
 })
 
 app.get('/profile:userId', (req, res) => {})
 
-app.put('/image', (req, res) => {})
+app.put('/image', (req, res) => {
+  const { id } = req.body
+  const user = database.users.find(user => user.id === id)
+  const not_found = 'not found'
+  let found = false
+
+  if (user) {
+    found = true
+    user.entries++
+    return res.json(
+      `User ${user.name} image entries updated to: ${user.entries}`
+    )
+  }
+
+  if (!found) {
+    res.status(400).json(not_found)
+  }
+})
 
 /*
   /                --> res = server running
